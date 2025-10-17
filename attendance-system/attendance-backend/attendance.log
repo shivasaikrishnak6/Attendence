@@ -1,0 +1,94 @@
+nohup: ignoring input
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.4.10)
+
+2025-10-17T18:09:50.843Z  INFO 13227 --- [attendance-backend] [           main] c.o.a.AttendanceBackendApplication       : Starting AttendanceBackendApplication v1.0.0 using Java 17.0.16 with PID 13227 (/root/attendance-system/attendance-backend/target/attendance-backend-1.0.0.jar started by root in /root/attendance-system/attendance-backend)
+2025-10-17T18:09:50.852Z  INFO 13227 --- [attendance-backend] [           main] c.o.a.AttendanceBackendApplication       : No active profile set, falling back to 1 default profile: "default"
+2025-10-17T18:09:52.613Z  INFO 13227 --- [attendance-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-10-17T18:09:52.709Z  INFO 13227 --- [attendance-backend] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 79 ms. Found 2 JPA repository interfaces.
+2025-10-17T18:09:53.364Z  INFO 13227 --- [attendance-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 9090 (http)
+2025-10-17T18:09:53.381Z  INFO 13227 --- [attendance-backend] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-10-17T18:09:53.381Z  INFO 13227 --- [attendance-backend] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.46]
+2025-10-17T18:09:53.420Z  INFO 13227 --- [attendance-backend] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-10-17T18:09:53.423Z  INFO 13227 --- [attendance-backend] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2443 ms
+2025-10-17T18:09:53.824Z  INFO 13227 --- [attendance-backend] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-10-17T18:09:53.902Z  INFO 13227 --- [attendance-backend] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.29.Final
+2025-10-17T18:09:53.949Z  INFO 13227 --- [attendance-backend] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-10-17T18:09:54.407Z  INFO 13227 --- [attendance-backend] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-10-17T18:09:54.452Z  INFO 13227 --- [attendance-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-10-17T18:09:54.930Z  INFO 13227 --- [attendance-backend] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@226e07e7
+2025-10-17T18:09:54.932Z  INFO 13227 --- [attendance-backend] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-10-17T18:09:55.015Z  WARN 13227 --- [attendance-backend] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-10-17T18:09:55.055Z  INFO 13227 --- [attendance-backend] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0.43
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-10-17T18:09:56.433Z  INFO 13227 --- [attendance-backend] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-10-17T18:09:56.531Z  INFO 13227 --- [attendance-backend] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-10-17T18:09:56.921Z  WARN 13227 --- [attendance-backend] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-10-17T18:09:57.578Z  INFO 13227 --- [attendance-backend] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2025-10-17T18:09:57.718Z  INFO 13227 --- [attendance-backend] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 9090 (http) with context path '/'
+2025-10-17T18:09:57.746Z  INFO 13227 --- [attendance-backend] [           main] c.o.a.AttendanceBackendApplication       : Started AttendanceBackendApplication in 7.661 seconds (process running for 8.415)
+2025-10-17T18:13:58.912Z  INFO 13227 --- [attendance-backend] [nio-9090-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-17T18:13:58.912Z  INFO 13227 --- [attendance-backend] [nio-9090-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-10-17T18:13:58.915Z  INFO 13227 --- [attendance-backend] [nio-9090-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+2025-10-17T18:18:58.026Z  INFO 13227 --- [attendance-backend] [nio-9090-exec-6] o.apache.coyote.http11.Http11Processor   : Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+
+java.lang.IllegalArgumentException: Invalid character found in method name [0x160x030x010x070x000x010x000x060xfc0x030x030x14V0xf0FZ0x9bM0xbf0xa40xc3T0x840xed?0x1a0x8a0xf2)0x1d0xe70xb60xb9b0xb30xbe0xc50xd90xb20x1c0x89u0xd3 ]. HTTP method names must be tokens
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:403) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1776) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:975) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:493) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.46.jar!/:na]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
+Hibernate: select e1_0.id,e1_0.company,e1_0.department,e1_0.email,e1_0.name,e1_0.project,e1_0.skill from employees e1_0
