@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Tracking System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #222;
+    }
+    h2 {
+      margin-top: 30px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+    input {
+      width: 45%;
+      padding: 8px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 5px;
+      background-color: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f3f4f6;
+    }
+    .message {
+      font-weight: bold;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Attendance Tracking System</h1>
+
+    <h2>Add Employee</h2>
+    <div>
+      <input type="text" id="name" placeholder="Name">
+      <input type="text" id="department" placeholder="Department"><br>
+      <input type="email" id="email" placeholder="Email">
+      <input type="text" id="project" placeholder="Project"><br>
+      <input type="text" id="company" placeholder="Company">
+      <input type="text" id="skill" placeholder="Skill"><br>
+      <button onclick="addEmployee()">Add Employee</button>
+    </div>
+
+    <h2>Mark Attendance</h2>
+    <div>
+      <input type="number" id="employeeId" placeholder="Employee ID"><br>
+      <button onclick="signIn()">Sign In</button>
+      <button onclick="signOut()">Sign Out</button>
+    </div>
+
+    <h2>Employee List</h2>
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Company</th>
+          <th>Department</th>
+          <th>Project</th>
+          <th>Skill</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div id="msg" class="message"></div>
+  </div>
+
+  <script>
+    const baseUrl = window.location.origin;
+
+    async function addEmployee() {
+      const data = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        company: document.getElementById("company").value,
+        department: document.getElementById("department").value,
+        project: document.getElementById("project").value,
+        skill: document.getElementById("skill").value
+      };
+
+      const msg = document.getElementById("msg");
+      try {
+        const response = await fetch(`${baseUrl}/employees`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          msg.textContent = "✅ Employee added successfully!";
+          loadEmployees();
+        } else {
+          msg.textContent = "❌ Failed to add employee.";
+        }
+      } catch {
+        msg.textContent = "❌ Error adding employee.";
+      }
+    }
+
+    async function loadEmployees() {
+      const tbody = document.querySelector("#employeeTable tbody");
+      tbody.innerHTML = "";
+      const response = await fetch(`${baseUrl}/employees`);
+      const employees = await response.json();
+
+      employees.forEach(emp => {
+        const row = `<tr>
+          <td>${emp.id}</td>
+          <td>${emp.name}</td>
+          <td>${emp.email}</td>
+          <td>${emp.company}</td>
+          <td>${emp.department}</td>
+          <td>${emp.project}</td>
+          <td>${emp.skill}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function signIn() {
+      const empId = document.getElementById("employeeId").value;
+      const msg = document.getElementById("msg");
+      try {
+        const response = await fetch(`${baseUrl}/attendance/signin?employeeId=${empId}`, { method: "POST" });
+        msg.textContent = response.ok ? "✅ Signed in successfully!" : "❌ Sign-in failed.";
+      } catch {
+        msg.textContent = "❌ Error during sign-in.";
+      }
+    }
+
+    async function signOut() {
+      const empId = document.getElementById("employeeId").value;
+      const msg = document.getElementById("msg");
+      try {
+        const response = await fetch(`${baseUrl}/attendance/signout?employeeId=${empId}`, { method: "POST" });
+        msg.textContent = response.ok ? "✅ Signed out successfully!" : "❌ Sign-out failed.";
+      } catch {
+        msg.textContent = "❌ Error during sign-out.";
+      }
+    }
+
+    loadEmployees();
+  </script>
+</body>
+</html>
+
