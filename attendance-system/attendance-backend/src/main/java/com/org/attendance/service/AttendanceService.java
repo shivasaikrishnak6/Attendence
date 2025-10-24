@@ -3,42 +3,50 @@ package com.org.attendance.service;
 import com.org.attendance.model.Attendance;
 import com.org.attendance.model.Employee;
 import com.org.attendance.repository.AttendanceRepository;
+import com.org.attendance.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AttendanceService {
 
-    private final AttendanceRepository attendanceRepository;
+    @Autowired
+    private AttendanceRepository attendanceRepository;
 
-    public AttendanceService(AttendanceRepository attendanceRepository) {
-        this.attendanceRepository = attendanceRepository;
-    }
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
-    public Attendance signIn(Employee employee) {
-        LocalDate today = LocalDate.now();
-        boolean isWeekend = today.getDayOfWeek() == DayOfWeek.SATURDAY || today.getDayOfWeek() == DayOfWeek.SUNDAY;
+    // ✅ Sign In
+    public Attendance signIn(Long employeeId) {
+        Optional<Employee> empOpt = employeeRepository.findById(employeeId);
+        if (empOpt.isEmpty()) throw new RuntimeException("Employee not found");
 
         Attendance attendance = new Attendance();
-        attendance.setDate(today);
-        attendance.setSignInTime(LocalTime.now());
-        attendance.setHoliday(isWeekend);
-        attendance.setEmployee(employee);
+        attendance.setEmployee(empOpt.get());
+        attendance.setSignInTime(LocalDateTime.now());
+        attendance.setSignOutTime(null); // Not yet signed out
+
         return attendanceRepository.save(attendance);
     }
 
-    public Attendance signOut(Employee employee) {
-        LocalDate today = LocalDate.now();
-        Attendance attendance = attendanceRepository.findAll()
-                .stream()
-                .filter(a -> a.getEmployee().getId().equals(employee.getId()) && a.getDate().equals(today))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Sign-in not found!"));
+    // ✅ Sign Out
+    public Attendance signOut(Long employeeId) {
+        Optional<Attendance> latestOpt = attendanceRepository.findTopByEmployeeIdOrderBySignInTimeDesc(employeeId);
+        if (latestOpt.isEmpty()) throw new RuntimeException("No active session found");
 
-        attendance.setSignOutTime(LocalTime.now());
-        return attendanceRepository.save(attendance);
+        Attendance latest = latestOpt.get();
+        latest.setSignOutTime(LocalDateTime.now());
+
+        return attendanceRepository.save(latest);
+    }
+
+    // ✅ Get all attendance records
+    public List<Attendance> getAll() {
+        return attendanceRepository.findAll();
     }
 }
 

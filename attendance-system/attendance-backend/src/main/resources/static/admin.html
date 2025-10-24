@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Admin Panel - Attendance Tracking System</title>
+<style>
+body { font-family: sans-serif; margin: 20px; background: #f8f9fa; }
+h1, h2 { color: #333; }
+section { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin: 16px 0; background: #fff; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
+th { background: #f7f7f7; }
+input, button { padding: 8px; margin: 5px; }
+button { background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+button:hover { background: #0056b3; }
+.container { max-width: 1200px; margin: auto; }
+hr { margin: 10px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Admin Dashboard - Attendance Tracking System</h1>
+  <p><a href="/index.html">← Back to App</a></p>
+
+  <!-- ✅ Active Users -->
+  <section>
+    <h2>Active Users</h2>
+    <button onclick="loadActive()">Refresh</button>
+    <table id="active">
+      <thead><tr><th>ID</th><th>User</th><th>Login</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- ✅ Login History -->
+  <section>
+    <h2>Login History</h2>
+    <button onclick="loadHistory()">Refresh</button>
+    <table id="hist">
+      <thead><tr><th>ID</th><th>User</th><th>Login</th><th>Logout</th><th>Active</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- ✅ Add Employee -->
+  <section>
+    <h2>Add Employee</h2>
+    <hr />
+    <form id="employeeForm">
+      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <input id="name" placeholder="Name" style="flex:1" required>
+        <input id="department" placeholder="Department" style="flex:1" required>
+        <input id="email" placeholder="Email" style="flex:1" required>
+        <input id="project" placeholder="Project" style="flex:1" required>
+        <input id="company" placeholder="Company" style="flex:1" required>
+        <input id="skill" placeholder="Skill" style="flex:1" required>
+      </div>
+      <button type="submit">Add Employee</button>
+    </form>
+  </section>
+
+  <!-- ✅ Employee List -->
+  <section>
+    <h2>Employee List</h2>
+    <hr />
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Company</th>
+          <th>Department</th>
+          <th>Project</th>
+          <th>Skill</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+function authFetch(url, opt = {}) {
+  const t = localStorage.getItem('auth');
+  return fetch(url, { ...opt, headers: { ...(opt.headers || {}), 'Authorization': 'Basic ' + t } });
+}
+function fmt(x){ return x ? x.replace('T',' ') : ''; }
+
+async function loadActive() {
+  const r = await authFetch('/admin/active-users');
+  if (!r.ok) { alert('401/403 – admin only'); return; }
+  const d = await r.json();
+  document.querySelector('#active tbody').innerHTML = d.map(s => `
+    <tr><td>${s.id}</td><td>${s.username}</td><td>${fmt(s.loginTime)}</td></tr>
+  `).join('');
+}
+
+async function loadHistory() {
+  const r = await authFetch('/admin/all-sessions');
+  if (!r.ok) { alert('401/403 – admin only'); return; }
+  const d = await r.json();
+  document.querySelector('#hist tbody').innerHTML = d.map(s => `
+    <tr>
+      <td>${s.id}</td>
+      <td>${s.username}</td>
+      <td>${fmt(s.loginTime)}</td>
+      <td>${fmt(s.logoutTime) || ''}</td>
+      <td>${s.active ? '✅' : '❌'}</td>
+    </tr>
+  `).join('');
+}
+
+async function loadEmployees() {
+  const r = await authFetch('/employees');
+  const employees = await r.json();
+  const tbody = document.querySelector('#employeeTable tbody');
+  tbody.innerHTML = employees.map(emp => `
+    <tr>
+      <td>${emp.id}</td>
+      <td>${emp.name}</td>
+      <td>${emp.email}</td>
+      <td>${emp.company}</td>
+      <td>${emp.department}</td>
+      <td>${emp.project}</td>
+      <td>${emp.skill}</td>
+      <td><button onclick="deleteEmployee(${emp.id})">Delete</button></td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('employeeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('name').value,
+    department: document.getElementById('department').value,
+    email: document.getElementById('email').value,
+    project: document.getElementById('project').value,
+    company: document.getElementById('company').value,
+    skill: document.getElementById('skill').value
+  };
+  await authFetch('/employees', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  e.target.reset();
+  loadEmployees();
+});
+
+async function deleteEmployee(id) {
+  await authFetch(`/admin/employees/${id}`, { method: 'DELETE' });
+  loadEmployees();
+}
+
+// Initial load
+loadActive();
+loadHistory();
+loadEmployees();
+</script>
+
+<!-- ✅ Guard: only admins may view this page -->
+<script>
+(function () {
+  const auth = localStorage.getItem('auth');
+  if (!auth) {
+    window.location.href = 'index.html';
+    return;
+  }
+  fetch('/admin/check', { headers: { 'Authorization': 'Basic ' + auth } })
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(d => {
+      if (!d.admin) {
+        alert('Admin access required');
+        localStorage.removeItem('auth');
+        window.location.href = 'index.html';
+      }
+    })
+    .catch(() => {
+      alert('Admin access required');
+      localStorage.removeItem('auth');
+      window.location.href = 'index.html';
+    });
+})();
+</script>
+</body>
+</html>
+
