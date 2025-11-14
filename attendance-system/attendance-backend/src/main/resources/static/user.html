@@ -87,15 +87,24 @@
 
       const res = await authFetch('/attendance/signin', {
         method: 'POST',
-        body: JSON.stringify({ employeeCode: empId })   // 👈 key name matches backend
+        body: JSON.stringify({ employeeCode: empId })   // 👈 matches backend
       });
 
       if (res.ok) {
+        // success – read JSON and show message from backend if present
         const data = await res.json().catch(() => ({}));
         showStatus(data.message || '✅ Sign-In successful', 'success');
+        return;
+      }
+
+      // Error branch with friendly messages, no JSON parsing needed
+      if (res.status === 400) {
+        // used for "Already signed in" case
+        showStatus('❌ Sign-In failed message ⚠️ Already signed in.', 'danger');
+      } else if (res.status === 404) {
+        showStatus('❌ Sign-In failed message ⚠️ Employee not found.', 'danger');
       } else {
-        const txt = await res.text();
-        showStatus('❌ Sign-In failed. ' + txt, 'danger');
+        showStatus('❌ Sign-In failed.', 'danger');
       }
     }
 
@@ -105,15 +114,22 @@
 
       const res = await authFetch('/attendance/signout', {
         method: 'POST',
-        body: JSON.stringify({ employeeCode: empId })   // 👈 same key
+        body: JSON.stringify({ employeeCode: empId })   // 👈 matches backend
       });
 
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
         showStatus(data.message || '✅ Sign-Out successful', 'success');
+        return;
+      }
+
+      if (res.status === 400) {
+        // used for "Already signed out" case
+        showStatus('❌ Sign-Out failed message ⚠️ Already signed out.', 'danger');
+      } else if (res.status === 404) {
+        showStatus('❌ Sign-Out failed message ⚠️ No active session found for this employee.', 'danger');
       } else {
-        const txt = await res.text();
-        showStatus('❌ Sign-Out failed. ' + txt, 'danger');
+        showStatus('❌ Sign-Out failed.', 'danger');
       }
     }
 
@@ -131,4 +147,3 @@
   </script>
 </body>
 </html>
-
