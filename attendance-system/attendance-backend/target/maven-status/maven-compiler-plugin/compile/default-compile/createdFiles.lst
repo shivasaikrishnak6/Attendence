@@ -1,6 +1,7 @@
 com/org/attendance/repository/EmployeeRepository.class
 com/org/attendance/service/SessionService.class
 com/org/attendance/AttendanceBackendApplication.class
+com/org/attendance/model/EmployeeSessionView.class
 com/org/attendance/controller/AuthController.class
 com/org/attendance/model/Attendance.class
 com/org/attendance/model/Employee.class

@@ -7,6 +7,7 @@
 /root/attendance-system/attendance-backend/src/main/java/com/org/attendance/controller/EmployeeController.java
 /root/attendance-system/attendance-backend/src/main/java/com/org/attendance/model/Attendance.java
 /root/attendance-system/attendance-backend/src/main/java/com/org/attendance/model/Employee.java
+/root/attendance-system/attendance-backend/src/main/java/com/org/attendance/model/EmployeeSessionView.java
 /root/attendance-system/attendance-backend/src/main/java/com/org/attendance/model/UserSession.java
 /root/attendance-system/attendance-backend/src/main/java/com/org/attendance/repository/AttendanceRepository.java
 /root/attendance-system/attendance-backend/src/main/java/com/org/attendance/repository/EmployeeRepository.java

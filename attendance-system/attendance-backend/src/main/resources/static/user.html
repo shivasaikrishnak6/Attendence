@@ -9,7 +9,7 @@
     rel="stylesheet">
   <style>
     body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
-    .container { max-width: 500px; margin-top: 80px; }
+    .container { max-width: 520px; margin-top: 80px; }
     h1 { text-align: center; font-weight: 700; margin-bottom: 30px; }
     button { margin-right: 10px; }
   </style>
@@ -19,6 +19,9 @@
   <div class="container">
     <h1>Mark Attendance</h1>
 
+    <!-- Top “logged in” info -->
+    <div id="flash" class="alert d-none"></div>
+
     <input id="empId" type="text" class="form-control mb-4" placeholder="Employee ID">
 
     <div class="text-center mb-3">
@@ -26,7 +29,8 @@
       <button class="btn btn-danger" onclick="signOut()">Sign Out</button>
     </div>
 
-    <div id="status" class="alert" style="display: none;"></div>
+    <!-- Status of sign-in / sign-out -->
+    <div id="status" class="alert d-none"></div>
 
     <div class="text-center">
       <button class="btn btn-secondary" onclick="logout()">Logout</button>
@@ -34,11 +38,23 @@
   </div>
 
   <script>
+    // ===== Auth guard =====
     const auth = localStorage.getItem('auth');
     if (!auth) {
       window.location.href = 'index.html';
     }
 
+    // Show “logged in successfully” when redirected from index.html
+    (function () {
+      const p = new URLSearchParams(location.search);
+      if (p.get('login') === '1') {
+        showFlash('Logged in successfully.', 'success');
+        // Clean URL so refresh doesn’t re-show the message
+        history.replaceState(null, '', 'user.html');
+      }
+    })();
+
+    // ===== Helpers =====
     async function authFetch(url, options = {}) {
       return fetch(url, {
         ...options,
@@ -50,43 +66,68 @@
       });
     }
 
-    function showMessage(msg, type = 'info') {
-      const div = document.getElementById('status');
-      div.style.display = 'block';
-      div.className = 'alert alert-' + type;
-      div.textContent = msg;
+    function showFlash(msg, type = 'info') {
+      const f = document.getElementById('flash');
+      f.className = 'alert alert-' + type;
+      f.textContent = msg;
+      f.classList.remove('d-none');
     }
 
+    function showStatus(msg, type = 'info') {
+      const div = document.getElementById('status');
+      div.className = 'alert alert-' + type;
+      div.textContent = msg;
+      div.classList.remove('d-none');
+    }
+
+    // ===== Actions =====
     async function signIn() {
       const empId = document.getElementById('empId').value.trim();
-      if (!empId) return showMessage('Please enter Employee ID', 'warning');
+      if (!empId) return showStatus('Please enter Employee ID', 'warning');
 
       const res = await authFetch('/attendance/signin', {
         method: 'POST',
-        body: JSON.stringify({ employeeId: empId })
+        body: JSON.stringify({ employeeCode: empId })   // 👈 key name matches backend
       });
 
-      if (res.ok) showMessage('✅ Sign-In successful', 'success');
-      else showMessage('❌ Sign-In failed', 'danger');
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showStatus(data.message || '✅ Sign-In successful', 'success');
+      } else {
+        const txt = await res.text();
+        showStatus('❌ Sign-In failed. ' + txt, 'danger');
+      }
     }
 
     async function signOut() {
       const empId = document.getElementById('empId').value.trim();
-      if (!empId) return showMessage('Please enter Employee ID', 'warning');
+      if (!empId) return showStatus('Please enter Employee ID', 'warning');
 
       const res = await authFetch('/attendance/signout', {
         method: 'POST',
-        body: JSON.stringify({ employeeId: empId })
+        body: JSON.stringify({ employeeCode: empId })   // 👈 same key
       });
 
-      if (res.ok) showMessage('✅ Sign-Out successful', 'success');
-      else showMessage('❌ Sign-Out failed', 'danger');
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showStatus(data.message || '✅ Sign-Out successful', 'success');
+      } else {
+        const txt = await res.text();
+        showStatus('❌ Sign-Out failed. ' + txt, 'danger');
+      }
     }
 
     function logout() {
       localStorage.removeItem('auth');
-      window.location.href = 'index.html';
+      window.location.href = 'index.html?logout=1';
     }
+
+    // Block back navigation (user must logout)
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', function () {
+      window.history.pushState(null, '', window.location.href);
+      alert('Please logout to go back.');
+    });
   </script>
 </body>
 </html>

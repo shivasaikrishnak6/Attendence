@@ -25,26 +25,21 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(request -> {
                 var c = new org.springframework.web.cors.CorsConfiguration();
-                c.addAllowedOriginPattern("*"); // allow all origins (frontend served on same port)
+                // Use patterns when allowCredentials(true)
+                c.setAllowedOriginPatterns(java.util.List.of("*"));
                 c.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 c.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
                 c.setAllowCredentials(true);
                 return c;
             }))
             .authorizeHttpRequests(auth -> auth
-                // static and public pages
+                // static pages
                 .requestMatchers("/", "/index.html", "/user.html", "/admin.html", "/css/**", "/js/**").permitAll()
-
-                // open endpoints
-                .requestMatchers("/login", "/auth/**").permitAll()
-
-                // allow this check for all authenticated users
-                .requestMatchers(HttpMethod.GET, "/admin/check").authenticated()
-
-                // restrict all other admin APIs
+                // public auth endpoints (index.html uses this for role routing, but requires credentials)
+                .requestMatchers(HttpMethod.GET, "/auth/check").authenticated()
+                // admin-only APIs
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                // rest must be authenticated
+                // your other APIs require login
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults());
@@ -54,16 +49,8 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        var admin = User.withUsername("admin")
-                .password(encoder.encode("admin123"))
-                .roles("ADMIN")
-                .build();
-
-        var user = User.withUsername("user")
-                .password(encoder.encode("user123"))
-                .roles("USER")
-                .build();
-
+        var admin = User.withUsername("admin").password(encoder.encode("admin123")).roles("ADMIN").build();
+        var user  = User.withUsername("user").password(encoder.encode("user123")).roles("USER").build();
         return new InMemoryUserDetailsManager(admin, user);
     }
 

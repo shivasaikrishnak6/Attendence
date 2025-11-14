@@ -1,8 +1,12 @@
 package com.org.attendance.controller;
 
+import com.org.attendance.model.Attendance;
+import com.org.attendance.model.EmployeeSessionView;
+import com.org.attendance.repository.AttendanceRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -11,40 +15,46 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminAuthController {
 
-    // ✅ Check login role (used in index.html for redirect)
+    private final AttendanceRepository attendanceRepository;
+
+    public AdminAuthController(AttendanceRepository attendanceRepository) {
+        this.attendanceRepository = attendanceRepository;
+    }
+
+    // Used by admin.html guard to ensure user is ADMIN
     @GetMapping("/check")
-    public Map<String, Object> check(Authentication auth) {
-        boolean isAdmin = auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    public Map<String, Object> authCheck(Authentication auth) {
+        boolean isAdmin = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
 
         return Map.of(
-                "username", auth.getName(),
+                "username", auth != null ? auth.getName() : null,
                 "admin", isAdmin
         );
     }
 
-    // ✅ Return dummy active users
+    // 1️⃣ Active Users – employees who signed in today and haven’t signed out yet
     @GetMapping("/active-users")
-    public List<Map<String, Object>> activeUsers() {
-        return List.of(
-                Map.of("id", 1, "username", "user1", "loginTime", LocalDateTime.now().minusMinutes(10).toString()),
-                Map.of("id", 2, "username", "user2", "loginTime", LocalDateTime.now().minusMinutes(20).toString())
-        );
+    public List<EmployeeSessionView> activeUsers() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = today.atTime(23, 59, 59);
+
+        List<Attendance> activeToday =
+                attendanceRepository.findBySignOutTimeIsNullAndSignInTimeBetween(start, end);
+
+        return activeToday.stream()
+                .map(EmployeeSessionView::from)
+                .toList();
     }
 
-    // ✅ Return dummy login history
+    // 2️⃣ Login History – all attendance records, latest login first
     @GetMapping("/all-sessions")
-    public List<Map<String, Object>> allSessions() {
-        return List.of(
-                Map.of("id", 1, "username", "admin", "loginTime", LocalDateTime.now().minusHours(1).toString(), "logoutTime", "", "active", true),
-                Map.of("id", 2, "username", "user", "loginTime", LocalDateTime.now().minusHours(3).toString(), "logoutTime", LocalDateTime.now().minusHours(2).toString(), "active", false)
-        );
-    }
-
-    // ✅ Dummy endpoint for deleting employees
-    @DeleteMapping("/employees/{id}")
-    public Map<String, Object> deleteEmployee(@PathVariable int id) {
-        return Map.of("deletedId", id, "status", "ok");
+    public List<EmployeeSessionView> allSessions() {
+        return attendanceRepository.findAllByOrderBySignInTimeDesc()
+                .stream()
+                .map(EmployeeSessionView::from)
+                .toList();
     }
 }
 

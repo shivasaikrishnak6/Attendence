@@ -1,12 +1,11 @@
 package com.org.attendance.service;
 
 import com.org.attendance.model.Attendance;
-import com.org.attendance.model.Employee;
 import com.org.attendance.repository.AttendanceRepository;
-import com.org.attendance.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,36 +16,28 @@ public class AttendanceService {
     @Autowired
     private AttendanceRepository attendanceRepository;
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    // ✅ Sign In
-    public Attendance signIn(Long employeeId) {
-        Optional<Employee> empOpt = employeeRepository.findById(employeeId);
-        if (empOpt.isEmpty()) throw new RuntimeException("Employee not found");
-
-        Attendance attendance = new Attendance();
-        attendance.setEmployee(empOpt.get());
-        attendance.setSignInTime(LocalDateTime.now());
-        attendance.setSignOutTime(null); // Not yet signed out
-
-        return attendanceRepository.save(attendance);
+    /**
+     * Active users for today: signed in today, no sign-out yet.
+     */
+    public List<Attendance> getTodayActiveUsers() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = today.plusDays(1).atStartOfDay();
+        return attendanceRepository.findBySignOutTimeIsNullAndSignInTimeBetween(start, end);
     }
 
-    // ✅ Sign Out
-    public Attendance signOut(Long employeeId) {
-        Optional<Attendance> latestOpt = attendanceRepository.findTopByEmployeeIdOrderBySignInTimeDesc(employeeId);
-        if (latestOpt.isEmpty()) throw new RuntimeException("No active session found");
-
-        Attendance latest = latestOpt.get();
-        latest.setSignOutTime(LocalDateTime.now());
-
-        return attendanceRepository.save(latest);
+    /**
+     * Full login history ordered by latest sign-in first.
+     */
+    public List<Attendance> getLoginHistory() {
+        return attendanceRepository.findAllByOrderBySignInTimeDesc();
     }
 
-    // ✅ Get all attendance records
-    public List<Attendance> getAll() {
-        return attendanceRepository.findAll();
+    /**
+     * Latest attendance row for a given employee (by employeeCode).
+     */
+    public Optional<Attendance> findLatestByEmployeeCode(String employeeCode) {
+        return attendanceRepository.findTopByEmployeeEmployeeCodeOrderBySignInTimeDesc(employeeCode);
     }
 }
 
