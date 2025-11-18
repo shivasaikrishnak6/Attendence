@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Admin Panel - Attendance Tracking System</title>
@@ -12,80 +12,78 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
     th { background: #f7f7f7; }
-    input, button, select { padding: 8px; margin: 5px 0; }
-    button { cursor: pointer; }
+    input, button { padding: 8px; margin: 5px; }
+    button { border-radius: 5px; cursor: pointer; }
     .container { max-width: 1200px; margin: auto; }
     hr { margin: 10px 0; }
     .topbar { display:flex; align-items:center; justify-content:space-between; }
+    .btn-primary { background:#007bff; border:none; }
+    .btn-primary:hover { background:#0056b3; }
+    .btn-success { background:#198754; border:none; }
+    .btn-success:hover { background:#146c43; }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="topbar">
     <h1>Admin Dashboard - Attendance Tracking System</h1>
-    <div>
-      <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
-    </div>
+    <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
   </div>
 
   <div id="flash" class="alert d-none"></div>
 
   <p><a href="/index.html">← Back to App</a></p>
 
-  <!-- ✅ Active Users -->
+  <!-- ================= Active Users (Today) ================= -->
   <section>
-    <h2>Active Users</h2>
+    <h2>Active Users (Today)</h2>
     <button class="btn btn-primary btn-sm" onclick="loadActive()">Refresh</button>
     <table id="active">
       <thead>
-      <tr><th>ID</th><th>User</th><th>Login</th></tr>
+      <tr>
+        <th>ID</th>
+        <th>Employee Code</th>
+        <th>Name</th>
+        <th>Sign-In Time</th>
+      </tr>
       </thead>
       <tbody></tbody>
     </table>
   </section>
 
-  <!-- ✅ Login History + Filter -->
+  <!-- ================= Login History ================= -->
   <section>
     <h2>Login History</h2>
-
-    <div class="row g-2 align-items-end mb-2">
-      <div class="col-md-3">
-        <label for="historyFilterCode" class="form-label">Filter by Employee Code</label>
-        <input id="historyFilterCode" class="form-control" placeholder="E000001">
-      </div>
-      <div class="col-md-2">
-        <button type="button"
-                class="btn btn-outline-primary w-100"
-                onclick="applyHistoryFilter()">Apply</button>
-      </div>
-      <div class="col-md-2">
-        <button type="button"
-                class="btn btn-outline-secondary w-100"
-                onclick="clearHistoryFilter()">Clear</button>
-      </div>
-      <div class="col-md-2">
-        <button class="btn btn-primary btn-sm" onclick="loadHistory()">Refresh</button>
-      </div>
+    <button class="btn btn-primary btn-sm" onclick="loadHistory()">Refresh</button>
+    <div class="mt-2 mb-2 d-flex">
+      <input id="historyFilterCode" class="form-control me-2"
+             placeholder="Filter by Employee Code (optional)">
+      <button class="btn btn-outline-primary btn-sm" onclick="loadHistory(true)">Apply Filter</button>
     </div>
-
     <table id="hist">
       <thead>
-      <tr><th>ID</th><th>User</th><th>Login</th><th>Logout</th><th>Active</th></tr>
+      <tr>
+        <th>ID</th>
+        <th>Employee Code</th>
+        <th>Name</th>
+        <th>Sign-In Time</th>
+        <th>Sign-Out Time</th>
+        <th>Active</th>
+      </tr>
       </thead>
       <tbody></tbody>
     </table>
+  </section>
 
-    <!-- ✅ CSV Export controls -->
-    <hr class="mt-4">
-    <h5>Export Monthly Attendance (CSV)</h5>
-    <div class="row g-2 align-items-end">
-      <div class="col-md-2">
-        <label for="exportYear" class="form-label">Year</label>
-        <select id="exportYear" class="form-select"></select>
-      </div>
+  <!-- ================= Export Attendance to CSV ================= -->
+  <section>
+    <h2>Export Attendance to CSV</h2>
+
+    <!-- Monthly export -->
+    <div class="row g-2 align-items-end mb-3">
       <div class="col-md-3">
-        <label for="exportMonth" class="form-label">Month</label>
-        <select id="exportMonth" class="form-select">
+        <label class="form-label">Month</label>
+        <select id="monthSelect" class="form-select">
           <option value="1">January</option>
           <option value="2">February</option>
           <option value="3">March</option>
@@ -101,29 +99,53 @@
         </select>
       </div>
       <div class="col-md-3">
-        <label for="exportEmployeeCode" class="form-label">Employee Code (optional)</label>
-        <input id="exportEmployeeCode" class="form-control" placeholder="E000001 (optional)">
+        <label class="form-label">Year</label>
+        <select id="yearSelect" class="form-select"></select>
       </div>
       <div class="col-md-3">
-        <button type="button"
-                class="btn btn-success w-100"
-                onclick="downloadCsv()">Download CSV</button>
+        <label class="form-label">Employee Code (optional)</label>
+        <input id="monthEmployeeCode" class="form-control" placeholder="E.g., E000001">
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-success w-100" onclick="downloadMonthlyCsv()">Download Monthly CSV</button>
+      </div>
+      <div class="col-12">
+        <small class="text-muted">
+          Leave Employee Code empty to export <strong>all employees</strong> for that month.
+        </small>
       </div>
     </div>
-    <p class="text-muted small mt-1">
-      Leave Employee Code empty to export <strong>all employees</strong> for that month.
-    </p>
+
+    <!-- Daily export -->
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Day</label>
+        <!-- value will be yyyy-MM-dd -->
+        <input id="dayInput" type="date" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Employee Code (optional)</label>
+        <input id="dayEmployeeCode" class="form-control" placeholder="E.g., E000001">
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-success w-100" onclick="downloadDailyCsv()">Download Daily CSV</button>
+      </div>
+      <div class="col-12">
+        <small class="text-muted">
+          Day format sent to backend will be <code>yyyy-MM-dd</code>.
+        </small>
+      </div>
+    </div>
   </section>
 
-  <!-- ✅ Add Employee -->
+  <!-- ================= Add Employee ================= -->
   <section>
     <h2>Add Employee</h2>
     <hr />
     <form id="employeeForm">
       <div class="row g-2">
         <div class="col-md-4">
-          <input id="employeeCode" class="form-control"
-                 placeholder="Employee Code (e.g., E123)" required>
+          <input id="employeeCode" class="form-control" placeholder="Employee Code (e.g., E000001)" required>
         </div>
         <div class="col-md-4">
           <input id="name" class="form-control" placeholder="Name" required>
@@ -132,26 +154,26 @@
           <input id="email" class="form-control" placeholder="Email" required>
         </div>
         <div class="col-md-4">
-          <input id="company" class="form-control" placeholder="Company">
+          <input id="company" class="form-control" placeholder="Company" required>
         </div>
         <div class="col-md-4">
-          <input id="department" class="form-control" placeholder="Department">
+          <input id="department" class="form-control" placeholder="Department" required>
         </div>
         <div class="col-md-4">
-          <input id="project" class="form-control" placeholder="Project">
+          <input id="project" class="form-control" placeholder="Project" required>
         </div>
         <div class="col-md-4">
-          <input id="skill" class="form-control" placeholder="Skill">
+          <input id="skill" class="form-control" placeholder="Skill" required>
         </div>
       </div>
       <button type="submit" class="btn btn-primary mt-2">Add Employee</button>
     </form>
     <small class="text-muted">
-      Tip: Employee Code is the ID users type on the User page to sign in/out.
+      Employee Code is what users will type on the User page to sign in/out.
     </small>
   </section>
 
-  <!-- ✅ Employee List -->
+  <!-- ================= Employee List ================= -->
   <section>
     <h2>Employee List</h2>
     <hr />
@@ -175,7 +197,7 @@
 </div>
 
 <script>
-  // ---------- Guard + role check BEFORE any admin API calls ----------
+  // ========= Auth guard =========
   (async function guard() {
     const auth = localStorage.getItem('auth');
     if (!auth) {
@@ -206,12 +228,11 @@
       return;
     }
 
-    // Only load data after successful admin check
+    initYearDropdown();
     loadActive();
     loadHistory();
     loadEmployees();
 
-    // Block back navigation (admin must logout)
     window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', function () {
       window.history.pushState(null, '', window.location.href);
@@ -219,7 +240,7 @@
     });
   })();
 
-  // ---------- Helpers ----------
+  // ========= Helpers =========
   function showFlash(msg, type = 'info') {
     const f = document.getElementById('flash');
     f.className = 'alert alert-' + type;
@@ -229,178 +250,188 @@
 
   function authFetch(url, opt = {}) {
     const t = localStorage.getItem('auth');
-    return fetch(url, {
-      ...opt,
-      headers: { ...(opt.headers || {}), 'Authorization': 'Basic ' + t }
-    });
+    return fetch(url, { ...opt, headers: { ...(opt.headers || {}), 'Authorization': 'Basic ' + t } });
   }
 
   function fmt(x) {
-    return x ? x : '';
+    return x ? x.replace('T', ' ') : '';
   }
 
-  // ---------- Active Users ----------
-  async function loadActive() {
-    const r = await authFetch('/admin/active-users');
-    if (!r.ok) { alert('401/403 – admin only'); return; }
-    const d = await r.json();
-    document.querySelector('#active tbody').innerHTML = d.map(s => `
-      <tr>
-        <td>${s.id}</td>
-        <td>${s.username}</td>
-        <td>${fmt(s.loginTime)}</td>
-      </tr>
-    `).join('');
-  }
-
-  // ---------- Login History + filter ----------
-  let allHistory = [];
-
-  async function loadHistory() {
-    const r = await authFetch('/admin/all-sessions');
-    if (!r.ok) { alert('401/403 – admin only'); return; }
-    allHistory = await r.json();
-    renderHistory(allHistory);
-  }
-
-  function renderHistory(rows) {
-    const tbody = document.querySelector('#hist tbody');
-    tbody.innerHTML = rows.map(s => `
-      <tr>
-        <td>${s.id}</td>
-        <td>${s.username}</td>
-        <td>${fmt(s.loginTime)}</td>
-        <td>${fmt(s.logoutTime) || ''}</td>
-        <td>${s.active ? '✅' : '❌'}</td>
-      </tr>
-    `).join('');
-  }
-
-  function applyHistoryFilter() {
-    const code = document.getElementById('historyFilterCode')
-      .value.trim().toUpperCase();
-
-    if (!code) {
-      renderHistory(allHistory);
-      return;
-    }
-
-    const filtered = allHistory.filter(s =>
-      (s.username || '').toUpperCase().includes(code)
-    );
-    renderHistory(filtered);
-  }
-
-  function clearHistoryFilter() {
-    document.getElementById('historyFilterCode').value = '';
-    renderHistory(allHistory);
-  }
-
-  // ---------- Populate export year options (2025–2035) ----------
-  function populateExportYears() {
-    const select = document.getElementById('exportYear');
-    if (!select) return;
-
-    select.innerHTML = '';
-    for (let y = 2025; y <= 2035; y++) {
+  // ========= Year dropdown for monthly export =========
+  function initYearDropdown() {
+    const yearSel = document.getElementById('yearSelect');
+    const now = new Date().getFullYear();
+    const start = 2025;              // <- as you requested
+    const end = 2035;
+    yearSel.innerHTML = '';
+    for (let y = start; y <= end; y++) {
       const opt = document.createElement('option');
       opt.value = y;
       opt.textContent = y;
-      if (y === new Date().getFullYear()) {
-        opt.selected = true;
-      }
-      select.appendChild(opt);
+      if (y === now) opt.selected = true;
+      yearSel.appendChild(opt);
     }
   }
-  populateExportYears();
 
-  // ---------- CSV download ----------
-  async function downloadCsv() {
-    const year = document.getElementById('exportYear').value;
-    const month = document.getElementById('exportMonth').value;
-    const employeeCode = document.getElementById('exportEmployeeCode')
-      .value.trim();
+  // ========= Active users =========
+  async function loadActive() {
+    try {
+      const r = await authFetch('/attendance/active-today');
+      if (!r.ok) throw new Error(await r.text());
+      const d = await r.json();
+      document.querySelector('#active tbody').innerHTML = d.map((a, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${a.employeeCode}</td>
+          <td>${a.name}</td>
+          <td>${fmt(a.signInTime)}</td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+      showFlash('Failed to load active users', 'danger');
+    }
+  }
 
-    let url = `/attendance/export?year=${year}&month=${month}`;
-    if (employeeCode) {
-      url += `&employeeCode=${encodeURIComponent(employeeCode)}`;
+  // ========= Login history =========
+  async function loadHistory(applyFilter = false) {
+    try {
+      const r = await authFetch('/attendance/history');
+      if (!r.ok) throw new Error(await r.text());
+      let d = await r.json();
+
+      if (applyFilter) {
+        const code = document.getElementById('historyFilterCode').value.trim();
+        if (code) {
+          d = d.filter(a => a.employeeCode &&
+                  a.employeeCode.toUpperCase() === code.toUpperCase());
+        }
+      }
+
+      document.querySelector('#hist tbody').innerHTML = d.map((a, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${a.employeeCode}</td>
+          <td>${a.name}</td>
+          <td>${fmt(a.signInTime)}</td>
+          <td>${fmt(a.signOutTime)}</td>
+          <td>${a.signOutTime ? '❌' : '✅'}</td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+      alert('Failed to load login history. ' + e);
+    }
+  }
+
+  // ========= Monthly CSV =========
+  async function downloadMonthlyCsv() {
+    const month = document.getElementById('monthSelect').value;
+    const year = document.getElementById('yearSelect').value;
+    const code = document.getElementById('monthEmployeeCode').value.trim();
+
+    let url = `/attendance/export-month?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
+    if (code) {
+      url += `&employeeCode=${encodeURIComponent(code)}`;
     }
 
-    const res = await authFetch(url);
-    if (!res.ok) {
-      showFlash('Failed to download CSV.', 'danger');
+    try {
+      const r = await authFetch(url);
+      if (!r.ok) {
+        const txt = await r.text();
+        throw new Error(txt);
+      }
+      const blob = await r.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'attendance_monthly.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to export monthly CSV. ' + e);
+    }
+  }
+
+  // ========= Daily CSV (important part for your issue) =========
+  async function downloadDailyCsv() {
+    const day = document.getElementById('dayInput').value; // yyyy-MM-dd
+    const code = document.getElementById('dayEmployeeCode').value.trim();
+
+    if (!day) {
+      alert('Please pick a day first.');
       return;
     }
 
-    const blob = await res.blob();
-    const mm = month.toString().padStart(2, '0');
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `attendance-${year}-${mm}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
-  }
+    let url = `/attendance/export-day?day=${encodeURIComponent(day)}`;
+    if (code) {
+      url += `&employeeCode=${encodeURIComponent(code)}`;
+    }
 
-  // ---------- Employees (list & add & delete) ----------
-  async function loadEmployees() {
-    const r = await authFetch('/employees');
-    if (!r.ok) return;
-    const employees = await r.json();
-    const tbody = document.querySelector('#employeeTable tbody');
-    tbody.innerHTML = employees.map(emp => `
-      <tr>
-        <td>${emp.id}</td>
-        <td>${emp.employeeCode || ''}</td>
-        <td>${emp.name}</td>
-        <td>${emp.email}</td>
-        <td>${emp.company || ''}</td>
-        <td>${emp.department || ''}</td>
-        <td>${emp.project || ''}</td>
-        <td>${emp.skill || ''}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-danger"
-                  onclick="deleteEmployee(${emp.id})">Delete</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  document.getElementById('employeeForm')
-    .addEventListener('submit', async e => {
-      e.preventDefault();
-
-      const code = document.getElementById('employeeCode')
-        .value.trim().toUpperCase();
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const company = document.getElementById('company').value.trim();
-      const department = document.getElementById('department').value.trim();
-      const project = document.getElementById('project').value.trim();
-      const skill = document.getElementById('skill').value.trim();
-
-      if (!code) {
-        showFlash('Employee Code is required', 'warning');
-        return;
+    try {
+      const r = await authFetch(url);
+      if (!r.ok) {
+        const txt = await r.text();
+        throw new Error(txt);
       }
+      const blob = await r.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'attendance_daily.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to export daily CSV. ' + e);
+    }
+  }
 
-      const payload = {
-        employeeCode: code,
-        name,
-        email,
-        company,
-        department,
-        project,
-        skill
-      };
+  // ========= Employees (list/add/delete) =========
+  async function loadEmployees() {
+    try {
+      const r = await authFetch('/employees');
+      if (!r.ok) throw new Error(await r.text());
+      const employees = await r.json();
+      const tbody = document.querySelector('#employeeTable tbody');
+      tbody.innerHTML = employees.map(emp => `
+        <tr>
+          <td>${emp.id}</td>
+          <td>${emp.employeeCode || ''}</td>
+          <td>${emp.name}</td>
+          <td>${emp.email}</td>
+          <td>${emp.company || ''}</td>
+          <td>${emp.department || ''}</td>
+          <td>${emp.project || ''}</td>
+          <td>${emp.skill || ''}</td>
+          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee(${emp.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      console.error(e);
+      showFlash('Failed to load employees', 'danger');
+    }
+  }
 
+  document.getElementById('employeeForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = document.getElementById('employeeCode').value.trim().toUpperCase();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const company = document.getElementById('company').value.trim();
+    const department = document.getElementById('department').value.trim();
+    const project = document.getElementById('project').value.trim();
+    const skill = document.getElementById('skill').value.trim();
+
+    if (!code) { showFlash('Employee Code is required', 'warning'); return; }
+
+    const payload = { employeeCode: code, name, email, company, department, project, skill };
+
+    try {
       const res = await authFetch('/employees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-
       if (res.ok) {
         showFlash('Employee added successfully', 'success');
         e.target.reset();
@@ -409,14 +440,24 @@
         const t = await res.text().catch(() => '');
         showFlash('Failed to add employee. ' + t, 'danger');
       }
-    });
+    } catch (err) {
+      console.error(err);
+      showFlash('Failed to add employee', 'danger');
+    }
+  });
 
   async function deleteEmployee(id) {
-    const res = await authFetch(`/admin/employees/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      showFlash('Employee deleted', 'success');
-      loadEmployees();
-    } else {
+    if (!confirm('Are you sure you want to delete this employee?')) return;
+    try {
+      const res = await authFetch(`/admin/employees/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        showFlash('Employee deleted', 'success');
+        loadEmployees();
+      } else {
+        showFlash('Failed to delete employee', 'danger');
+      }
+    } catch (e) {
+      console.error(e);
       showFlash('Failed to delete employee', 'danger');
     }
   }
@@ -428,4 +469,3 @@
 </script>
 </body>
 </html>
-

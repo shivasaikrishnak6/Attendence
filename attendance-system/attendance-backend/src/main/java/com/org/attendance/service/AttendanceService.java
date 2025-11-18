@@ -2,49 +2,77 @@ package com.org.attendance.service;
 
 import com.org.attendance.model.Attendance;
 import com.org.attendance.repository.AttendanceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AttendanceService {
 
-    private static final ZoneId TZ_NY = ZoneId.of("America/New_York");
+    private final AttendanceRepository attendanceRepository;
 
-    @Autowired
-    private AttendanceRepository attendanceRepository;
-
-    public Optional<Attendance> findLatestByEmployeeCode(String employeeCode) {
-        return attendanceRepository.findTopByEmployeeEmployeeCodeOrderBySignInTimeDesc(employeeCode);
+    public AttendanceService(AttendanceRepository attendanceRepository) {
+        this.attendanceRepository = attendanceRepository;
     }
 
     /**
-     * Active users for "today" in America/New_York timezone.
+     * Latest attendance row for a given employee code.
+     */
+    public Optional<Attendance> findLatestByEmployeeCode(String employeeCode) {
+        return attendanceRepository
+                .findTopByEmployeeEmployeeCodeOrderBySignInTimeDesc(employeeCode);
+    }
+
+    /**
+     * Employees who are currently signed in today (no sign-out yet).
      */
     public List<Attendance> getTodayActiveUsers() {
-        LocalDate today = LocalDate.now(TZ_NY);
+        LocalDate today = LocalDate.now();
         LocalDateTime start = today.atStartOfDay();
         LocalDateTime end = today.plusDays(1).atStartOfDay().minusNanos(1);
         return attendanceRepository.findBySignOutTimeIsNullAndSignInTimeBetween(start, end);
     }
 
     /**
-     * Full login history (all employees).
+     * Full login history ordered by latest sign-in first.
      */
     public List<Attendance> getLoginHistory() {
         return attendanceRepository.findAllByOrderBySignInTimeDesc();
     }
 
     /**
-     * Login history for a single employee.
+     * All attendance rows for a specific calendar date, optionally filtered by employee code.
      */
-    public List<Attendance> getLoginHistoryForEmployee(String employeeCode) {
-        return attendanceRepository.findByEmployeeEmployeeCodeOrderBySignInTimeDesc(employeeCode);
+    public List<Attendance> getAttendanceForDate(LocalDate date, Optional<String> employeeCodeOpt) {
+        List<Attendance> all = attendanceRepository.findAllByOrderBySignInTimeDesc();
+
+        return all.stream()
+                .filter(a -> a.getSignInTime() != null
+                        && a.getSignInTime().toLocalDate().equals(date))
+                .filter(a -> employeeCodeOpt
+                        .map(code -> code.equalsIgnoreCase(a.getEmployee().getEmployeeCode()))
+                        .orElse(true))
+                .toList();
+    }
+
+    /**
+     * All attendance rows for a specific month, optionally filtered by employee code.
+     */
+    public List<Attendance> getAttendanceForMonth(int year, int month, Optional<String> employeeCodeOpt) {
+        List<Attendance> all = attendanceRepository.findAllByOrderBySignInTimeDesc();
+
+        return all.stream()
+                .filter(a -> {
+                    if (a.getSignInTime() == null) return false;
+                    LocalDate d = a.getSignInTime().toLocalDate();
+                    return d.getYear() == year && d.getMonthValue() == month;
+                })
+                .filter(a -> employeeCodeOpt
+                        .map(code -> code.equalsIgnoreCase(a.getEmployee().getEmployeeCode()))
+                        .orElse(true))
+                .toList();
     }
 }
-

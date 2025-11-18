@@ -11,11 +11,12 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     /**
      * Latest attendance row for a given employee, looked up by employeeCode.
+     * (employee is a relation on Attendance)
      */
     Optional<Attendance> findTopByEmployeeEmployeeCodeOrderBySignInTimeDesc(String employeeCode);
 
     /**
-     * Employees who are currently signed in today (no sign_out_time yet).
+     * Employees who are currently signed in in a given time window.
      */
     List<Attendance> findBySignOutTimeIsNullAndSignInTimeBetween(LocalDateTime start, LocalDateTime end);
 
@@ -25,22 +26,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     List<Attendance> findAllByOrderBySignInTimeDesc();
 
     /**
-     * Login history for a single employee ordered by latest sign-in first.
-     */
-    List<Attendance> findByEmployeeEmployeeCodeOrderBySignInTimeDesc(String employeeCode);
-
-    /**
-     * All attendance rows in a given date/time range (for CSV export, etc.).
+     * All rows in a given date/time range (used for monthly & daily CSV export).
      */
     List<Attendance> findBySignInTimeBetween(LocalDateTime start, LocalDateTime end);
-
-    /**
-     * Attendance rows for a single employee in a date/time range.
-     */
-    List<Attendance> findByEmployeeEmployeeCodeAndSignInTimeBetween(
-            String employeeCode,
-            LocalDateTime start,
-            LocalDateTime end
-    );
 }
-
